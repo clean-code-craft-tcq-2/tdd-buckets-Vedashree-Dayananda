@@ -3,6 +3,13 @@
 #include <bits/stdc++.h>
 using namespace std;
 
+void displayRanges(std::vector<Range> listofRanges)
+{
+	cout << "Range, Reading" << endl;
+	for (int i = 0; i < listofRanges.size(); i++)
+		cout << listofRanges[i].lowerLimit << "-" << listofRanges[i].upperLimit << ", " << listofRanges[i].numOfReadingsInRange << endl;
+}
+
 std::vector<Range> computeCurrentRanges(std::vector<int> readingsList)
 {
 	std::vector<Range> listofRanges = {};
@@ -32,5 +39,6 @@ std::vector<Range> computeCurrentRanges(std::vector<int> readingsList)
 		}
 	}
 	listofRanges.push_back(currentRange);
-  return listofRanges;
+	displayRanges(listofRanges);
+	return listofRanges;
 }
