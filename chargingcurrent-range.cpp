@@ -8,6 +8,10 @@ std::vector<Range> computeCurrentRanges(std::vector<int> readingsList)
 	std::vector<Range> listofRanges = {};
 	Range currentRange = {};
 	
+	if (readingsList.empty())
+	{
+		return {};
+	}
 	sort(readingsList.begin(), readingsList.end());
 	currentRange.lowerLimit = readingsList[0];
 	currentRange.upperLimit = readingsList[0];
