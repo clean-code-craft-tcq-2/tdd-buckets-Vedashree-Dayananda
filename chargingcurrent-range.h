@@ -8,5 +8,6 @@ struct Range
 	int numOfReadingsInRange;
 };
 
-std::vector<Range> computeCurrentRanges(std::vector<int> readingsList);
 void displayRanges(std::vector<Range> listofRanges);
+std::vector<Range> findRanges(std::vector<int> readingsList);
+std::vector<Range> computeCurrentRanges(std::vector<int> readingsList);
