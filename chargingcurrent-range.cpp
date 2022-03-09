@@ -10,15 +10,10 @@ void displayRanges(std::vector<Range> listofRanges)
 		cout << listofRanges[i].lowerLimit << "-" << listofRanges[i].upperLimit << ", " << listofRanges[i].numOfReadingsInRange << endl;
 }
 
-std::vector<Range> computeCurrentRanges(std::vector<int> readingsList)
+std::vector<Range> findRanges(std::vector<int> readingsList)
 {
 	std::vector<Range> listofRanges = {};
 	Range currentRange = {};
-	
-	if (readingsList.empty())
-	{
-		return {};
-	}
 	sort(readingsList.begin(), readingsList.end());
 	currentRange.lowerLimit = readingsList[0];
 	currentRange.upperLimit = readingsList[0];
@@ -39,6 +34,19 @@ std::vector<Range> computeCurrentRanges(std::vector<int> readingsList)
 		}
 	}
 	listofRanges.push_back(currentRange);
+	return listofRanges;
+}
+
+std::vector<Range> computeCurrentRanges(std::vector<int> readingsList)
+{
+	std::vector<Range> listofRanges = {};
+	
+	if (readingsList.empty())
+	{
+		return {};
+	}
+	
+	listofRanges = findRanges(readingsList);
 	displayRanges(listofRanges);
 	return listofRanges;
 }
