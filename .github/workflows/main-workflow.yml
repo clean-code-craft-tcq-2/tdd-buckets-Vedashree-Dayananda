@@ -14,8 +14,6 @@ jobs:
       run: |
         sudo apt-get update
         sudo apt-get install -y gcovr
-rm -rf coverage.html test-alerts.cpp.gcov  test-alerts.gcno typewise-alert.gcno coverage.typewise-alert.cpp.html  test-alerts.gcda  test#catch.hpp.gcov  typewise-alert.gcda
-
     - name: build
       run: g++ -Wall -Wextra -fprofile-arcs -ftest-coverage -o testchecker *.c*
       
