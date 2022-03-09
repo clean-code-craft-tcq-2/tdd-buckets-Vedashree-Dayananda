@@ -26,3 +26,10 @@ TEST_CASE("detect the ranges in the unsorted input list ") {
 	REQUIRE(listofRanges[1].upperLimit == 12);
 	REQUIRE(listofRanges[1].numOfReadingsInRange == 3);
 }
+
+TEST_CASE("return empty list of  the ranges when no readings are provided") {
+	std::vector<Range> listofRanges = {};
+	std::vector<int> inputList = {};
+	listofRanges = computeCurrentRanges(inputList);
+	REQUIRE(listofRanges.empty() == true);
+}
