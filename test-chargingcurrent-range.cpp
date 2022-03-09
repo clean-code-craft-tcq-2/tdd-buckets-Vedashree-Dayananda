@@ -18,4 +18,11 @@ TEST_CASE("detect the ranges in the unsorted input list ") {
 	std::vector<int> inputList = { 3, 3, 5, 4, 10, 11, 12 };
 	listofRanges = computeCurrentRanges(inputList);
 	REQUIRE(listofRanges.size() == 2);
+	REQUIRE(listofRanges[0].lowerLimit == 3);
+	REQUIRE(listofRanges[0].upperLimit == 5);
+	REQUIRE(listofRanges[0].numOfReadingsInRange == 4);
+	
+	REQUIRE(listofRanges[1].lowerLimit == 10);
+	REQUIRE(listofRanges[1].upperLimit == 12);
+	REQUIRE(listofRanges[1].numOfReadingsInRange == 3);
 }
