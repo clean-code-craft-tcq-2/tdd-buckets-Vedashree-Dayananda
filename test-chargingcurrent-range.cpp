@@ -12,3 +12,10 @@ TEST_CASE("detect the ranges in the given input list with 2 elements") {
 	REQUIRE(listofRanges[0].upperLimit == 5);
 	REQUIRE(listofRanges[0].numOfReadingsInRange == 2);
 }
+
+TEST_CASE("detect the ranges in the unsorted input list ") {
+	std::vector<Range> listofRanges = {};
+	std::vector<int> inputList = { 3, 3, 5, 4, 10, 11, 12 };
+	listofRanges = computeCurrentRanges(inputList);
+	REQUIRE(listofRanges.size() == 2);
+}
