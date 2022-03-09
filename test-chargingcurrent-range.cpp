@@ -8,4 +8,5 @@ TEST_CASE("detect the ranges in the given input list") {
 	std::vector<int> inputList = { 4, 5 };
 	listofRanges = computeCurrentRanges(inputList);
 	REQUIRE(listofRanges.size() == 1);
+	REQUIRE(listofRanges[0].numOfReadingsInRange == 2);
 }
