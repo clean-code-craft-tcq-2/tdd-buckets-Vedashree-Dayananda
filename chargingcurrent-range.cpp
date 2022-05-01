@@ -27,13 +27,19 @@ std::string formatOutputToCsv(std::vector<Range> listofRanges)
 		outputText += std::to_string(listofRanges[i].lowerLimit) + "-" + std::to_string(listofRanges[i].upperLimit) + "," + std::to_string(listofRanges[i].numOfReadingsInRange) + "\n";
 	return outputText;
 }
+bool check_value_within_limit(double value, double max_value)
+{
+	if (value < 0 || value > max_value)
+		return false;
+	return true;
+
+}
 
 int validateReadings(std::vector<double> readingsList, int sensorType)
 {
-
 	for (std::vector<double>::iterator itr = readingsList.begin(); itr != readingsList.end(); itr++)
 	{
-		if (*itr < 0 || *itr > MaximumLimitsMap[sensorType])
+		if (!check_value_within_limit(*itr, MaximumLimitsMap[sensorType]))
 			return 0;
 	}
 	return 1;
@@ -48,24 +54,24 @@ std::vector<double> convertToAmps(std::vector<double> readingsList, int sensorTy
 
 std::vector<double> converterfor12BitSensor(std::vector<double> readingsList)
 {
-	std::vector<double> convertedReadingsList = {};
-	for (std::vector<double>::iterator itr = readingsList.begin(); itr != readingsList.end(); itr++)
+	std::vector<double> convertedReadingsList12Bit = {};
+	for (std::vector<double>::iterator itr1 = readingsList.begin(); itr != readingsList.end(); itr++)
 	{
-		double valueInAmp = ((10 * (*itr)) / 4094);
-		convertedReadingsList.push_back(round(valueInAmp));
+		double valueInAmp = ((10 * (*itr1)) / 4094);
+		convertedReadingsList12Bit.push_back(round(valueInAmp));
 	}
-	return convertedReadingsList;
+	return convertedReadingsList12Bit;
 }
 
 std::vector<double> converterfor10BitSensor(std::vector<double> readingsList)
 {
-	std::vector<double> convertedReadingsList = {};
-	for (std::vector<double>::iterator itr = readingsList.begin(); itr != readingsList.end(); itr++)
+	std::vector<double> convertedReadingsList10Bit = {};
+	for (std::vector<double>::iterator itr2 = readingsList.begin(); itr != readingsList.end(); itr++)
 	{
-		double valueInAmp = (((*itr) - 511.0) * 15.0 / 511.0);
-		convertedReadingsList.push_back(abs(round(valueInAmp)));
+		double valueInAmp = (((*itr2) - 511.0) * 15.0 / 511.0);
+		convertedReadingsList10Bit.push_back(abs(round(valueInAmp)));
 	}
-	return convertedReadingsList;
+	return convertedReadingsList10Bit;
 }
 
 std::vector<Range> findRanges(std::vector<double> readingsList)
