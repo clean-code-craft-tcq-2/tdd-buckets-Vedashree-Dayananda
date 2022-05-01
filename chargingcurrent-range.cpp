@@ -1,130 +1,99 @@
+#define CATCH_CONFIG_MAIN  // This tells Catch to provide a main() - only do this in one cpp file
+
+#include "test/catch.hpp"
 #include "chargingcurrent-range.h"
-#include <iostream>
-#include <bits/stdc++.h>
-using namespace std;
 
-std::map < int, int> MaximumLimitsMap = {
-	{ 12, 4094 },
-	{ 10, 1022 }
-};
-
-using funcptr = std::vector<double>(*)(std::vector<double>);
-
-std::map < int, funcptr > ConverterFunctionMap = {
-	{ 12, converterfor12BitSensor },
-	{ 10, converterfor10BitSensor }
-};
-
-void printOnConsole(std::string outputText)
-{
-	cout << outputText;
+TEST_CASE("detect the ranges in the given input list with 2 elements") {
+	std::vector<Range> listofRanges1 = {};
+	std::vector<double> inputList1 = { 4, 5 };
+	listofRanges1 = computeCurrentRanges(inputList1);
+	REQUIRE(listofRanges1.size() == 1);
+	REQUIRE(listofRanges1[0].lowerLimit == 4);
+	REQUIRE(listofRanges1[0].upperLimit == 5);
+	REQUIRE(listofRanges1[0].numOfReadingsInRange == 2);
 }
 
-std::string formatOutputToCsv(std::vector<Range> listofRanges)
-{
-	std::string outputText = "Range, Reading \n";
-	for (int i = 0; (size_t)i < listofRanges.size(); i++)
-		outputText += std::to_string(listofRanges[i].lowerLimit) + "-" + std::to_string(listofRanges[i].upperLimit) + "," + std::to_string(listofRanges[i].numOfReadingsInRange) + "\n";
-	return outputText;
-}
-bool check_value_within_limit(double value, double max_value)
-{
-	if (value < 0 || value > max_value)
-		return false;
-	return true;
-
-}
-
-int validateReadings(std::vector<double> readingsList, int sensorType)
-{
-	for (std::vector<double>::iterator itr = readingsList.begin(); itr != readingsList.end(); itr++)
-	{
-		if (!check_value_within_limit(*itr, MaximumLimitsMap[sensorType]))
-			return 0;
-	}
-	return 1;
-}
-
-std::vector<double> convertToAmps(std::vector<double> readingsList, int sensorType)
-{
-	funcptr coverterFunction = ConverterFunctionMap[sensorType];
-	std::vector<double> outputList = (*coverterFunction)(readingsList);
-	return outputList;
-}
-
-std::vector<double> converterfor12BitSensor(std::vector<double> readingsList)
-{
-	std::vector<double> convertedReadingsList12Bit = {};
-	for (std::vector<double>::iterator itr1 = readingsList.begin(); itr != readingsList.end(); itr++)
-	{
-		double valueInAmp = ((10 * (*itr1)) / 4094);
-		convertedReadingsList12Bit.push_back(round(valueInAmp));
-	}
-	return convertedReadingsList12Bit;
-}
-
-std::vector<double> converterfor10BitSensor(std::vector<double> readingsList)
-{
-	std::vector<double> convertedReadingsList10Bit = {};
-	for (std::vector<double>::iterator itr2 = readingsList.begin(); itr != readingsList.end(); itr++)
-	{
-		double valueInAmp = (((*itr2) - 511.0) * 15.0 / 511.0);
-		convertedReadingsList10Bit.push_back(abs(round(valueInAmp)));
-	}
-	return convertedReadingsList10Bit;
-}
-
-std::vector<Range> findRanges(std::vector<double> readingsList)
-{
-	std::vector<Range> listofRanges = {};
-	Range currentRange = {};
-	sort(readingsList.begin(), readingsList.end());
-	currentRange.lowerLimit = readingsList[0];
-	currentRange.upperLimit = readingsList[0];
-	currentRange.numOfReadingsInRange = 0;
-	for (std::vector<double>::iterator itr = readingsList.begin(); itr != readingsList.end(); itr++)
-	{
-		if (*itr - currentRange.upperLimit <= 1)
-		{
-			currentRange.upperLimit = *itr;
-			currentRange.numOfReadingsInRange++;
-		}
-		else
-		{
-			listofRanges.push_back(currentRange);
-			currentRange.lowerLimit = *itr;
-			currentRange.upperLimit = *itr;
-			currentRange.numOfReadingsInRange = 1;
-		}
-	}
-	listofRanges.push_back(currentRange);
-	return listofRanges;
-}
-
-std::vector<Range> computeCurrentRanges(std::vector<double> readingsList)
-{
-	std::vector<Range> listofRanges = {};
+TEST_CASE("detect the ranges in the unsorted input list ") {
+	std::vector<Range> listofRanges2 = {};
+	std::vector<double> inputList2 = { 3, 3, 5, 4, 10, 11, 12 };
+	listofRanges2 = computeCurrentRanges(inputList2);
+	REQUIRE(listofRanges2.size() == 2);
+	REQUIRE(listofRanges2[0].lowerLimit == 3);
+	REQUIRE(listofRanges2[0].upperLimit == 5);
+	REQUIRE(listofRanges2[0].numOfReadingsInRange == 4);
 	
-	if (readingsList.empty())
-	{
-		return {};
-	}
-
-	listofRanges = findRanges(readingsList);
-	std::string outputText = formatOutputToCsv(listofRanges);
-	printOnConsole(outputText);
-	return listofRanges;
+	REQUIRE(listofRanges2[1].lowerLimit == 10);
+	REQUIRE(listofRanges2[1].upperLimit == 12);
+	REQUIRE(listofRanges2[1].numOfReadingsInRange == 3);
 }
 
-std::vector<Range> computeCurrentRangesFromADCReading(std::vector<double> readingsList , int sensorType)
-{
-	int validReadings = validateReadings(readingsList, sensorType);
+TEST_CASE("return empty list of  the ranges when no readings are provided") {
+	std::vector<Range> listofRanges3 = {};
+	std::vector<double> inputList3 = {};
+	listofRanges3 = computeCurrentRanges(inputList3);
+	REQUIRE(listofRanges3.empty() == true);
+}
 
-	if (validReadings)
-	{
-		std::vector<double> convertedReadingsList = convertToAmps(readingsList, sensorType);
-		std::vector<Range> listofRanges = computeCurrentRanges(convertedReadingsList);
-		return listofRanges;
-	}
-	return{};
+TEST_CASE("verify format of data printed") {
+	std::vector<Range> listofRanges4 = { { 1, 7, 3 }, { 18, 25, 8 } };
+	std::string expectedOutputText = "Range, Reading \n";
+	for (int i = 0; (size_t)i < listofRanges4.size(); i++)
+		expectedOutputText += std::to_string(listofRanges4[i].lowerLimit) + "-" + std::to_string(listofRanges4[i].upperLimit) + "," + std::to_string(listofRanges4[i].numOfReadingsInRange) + "\n";
+	std::string actualOutputText = formatOutputToCsv(listofRanges4);
+	REQUIRE(expectedOutputText.compare(actualOutputText) == 0);
+}
+
+TEST_CASE("detect the ranges in the given input list with 12 bit  ADC elements") {
+	std::vector<Range> listofRanges5 = {};
+	std::vector<double> inputList5 = { 1146, 1806 , 3065,3450,3650};
+	listofRanges5 = computeCurrentRangesFromADCReading(inputList5, 12);
+	REQUIRE(listofRanges5.size() == 2);
+	REQUIRE(listofRanges5[0].lowerLimit == 3);
+	REQUIRE(listofRanges5[0].upperLimit == 4);
+	REQUIRE(listofRanges5[0].numOfReadingsInRange == 2);
+	REQUIRE(listofRanges5[1].lowerLimit == 7);
+	REQUIRE(listofRanges5[1].upperLimit == 9);
+	REQUIRE(listofRanges5[1].numOfReadingsInRange == 3);
+}
+
+TEST_CASE("return empty list of  the ranges when negative readings are provided for 12 bit ADC") {
+	std::vector<Range> listofRanges6 = {};
+	std::vector<double> inputList6 = { 1146, 1806, 3065, 3450, 3650 , -1146 };
+	listofRanges6 = computeCurrentRangesFromADCReading(inputList6, 12);
+	REQUIRE(listofRanges6.empty() == true);
+}
+
+TEST_CASE("return empty list of  the ranges when out of range readings are provided for 12 bit ADC") {
+	std::vector<Range> listofRanges7 = {};
+	std::vector<double> inputList7 = { 1146, 1806, 3065, 3450, 3650, 4095};
+	listofRanges7 = computeCurrentRangesFromADCReading(inputList7, 12);
+	REQUIRE(listofRanges7.empty() == true);
+}
+
+TEST_CASE("detect the ranges in the given input list with 10 bit  ADC elements") {
+	std::vector<Range> listofRanges8 = {};
+	std::vector<double> inputList8 = { 0, 1022, 1000, 100 , 900 };
+	listofRanges8 = computeCurrentRangesFromADCReading(inputList8, 10);
+	REQUIRE(listofRanges8.size() == 2);
+	REQUIRE(listofRanges8[0].lowerLimit == 11);
+	REQUIRE(listofRanges8[0].upperLimit == 12);
+	REQUIRE(listofRanges8[0].numOfReadingsInRange == 2);
+	REQUIRE(listofRanges8[1].lowerLimit == 14);
+	REQUIRE(listofRanges8[1].upperLimit == 15);
+	REQUIRE(listofRanges8[1].numOfReadingsInRange == 3);
+
+}
+
+TEST_CASE("return empty list of  the ranges when negative readings are provided for 10 bit ADC") {
+	std::vector<Range> listofRanges9 = {};
+	std::vector<double> inputList9 = { 0, -1022, 1000, 100, 900 };
+	listofRanges9 = computeCurrentRangesFromADCReading(inputList9, 10);
+	REQUIRE(listofRanges9.empty() == true);
+}
+
+TEST_CASE("return empty list of  the ranges when out of range readings are provided for 10 bit ADC") {
+	std::vector<Range> listofRanges10 = {};
+	std::vector<double> inputList10 = { 0, 1024, 1000, 100, 900 };
+	listofRanges10 = computeCurrentRangesFromADCReading(inputList10, 10);
+	REQUIRE(listofRanges10.empty() == true);
 }
