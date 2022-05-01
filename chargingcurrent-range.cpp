@@ -30,10 +30,7 @@ std::string formatOutputToCsv(std::vector<Range> listofRanges)
 
 int validateReadings(std::vector<double> readingsList, int sensorType)
 {
-	if (readingsList.empty())
-	{
-		return 0;
-	}
+
 	for (std::vector<double>::iterator itr = readingsList.begin(); itr != readingsList.end(); itr++)
 	{
 		if (*itr < 0 || *itr > MaximumLimitsMap[sensorType])
